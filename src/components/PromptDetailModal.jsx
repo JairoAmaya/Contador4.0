@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // <-- CAMBIO 1: Importar useCallback
 import { X, Copy, ExternalLink, Check } from 'lucide-react';
 import { highlightPlaceholders, countPlaceholders } from '../utils/highlightPlaceholders';
 
@@ -44,20 +44,20 @@ const PromptDetailModal = ({ promptData, onClose }) => {
   };
 
   // Función para cerrar con animación
-  const handleClose = () => {
+  // CAMBIO 2: Envolver handleClose con useCallback
+  const handleClose = useCallback(() => {
     setIsVisible(false);
     setTimeout(onClose, 300);
-  };
+  }, [onClose]); // <-- onClose es su única dependencia
 
   // Cerrar con tecla ESC
-  // AJUSTE CRÍTICO: Se incluye handleClose en el array de dependencias para cumplir con las reglas de Hooks
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') handleClose();
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [handleClose]); // <--- ¡SOLUCIÓN AL ERROR DE COMPILACIÓN!
+  }, [handleClose]); // Ahora handleClose es estable
 
   return (
     <div 
