@@ -107,7 +107,7 @@ const App = () => {
                         : 'bg-white hover:bg-gray-50 text-gray-800'
                     }`}
                     onClick={() => toggleCollapse(category.title)}
-                    disabled={!!searchText}
+                    // AQUÍ ESTABA: disabled={!!searchText} <--- LÍNEA ELIMINADA
                   >
                     <div className="text-xl font-bold flex items-center">
                       <span className="mr-3 text-2xl">{category.icon}</span> 
@@ -137,7 +137,7 @@ const App = () => {
                                   : 'bg-gray-50 hover:bg-gray-100'
                               }`}
                               onClick={() => toggleCollapse(subcategory.title)}
-                              disabled={!!searchText}
+                              // AQUÍ ESTABA: disabled={!!searchText} <--- LÍNEA ELIMINADA
                             >
                               <h3 className="text-base font-semibold text-gray-700 flex items-center">
                                 <span className="ml-2">
@@ -158,7 +158,7 @@ const App = () => {
                                   <button
                                     key={promptItem.title}
                                     onClick={() => handlePromptClick(category.title, subcategory.title, promptItem)}
-                                    // CLASES DE DISEÑO DE 'TARJETA DE PROMPT' APLICADAS AQUÍ
+                                    // Estilos de Tarjeta
                                     className="w-full text-left p-4 bg-white rounded-xl shadow-md hover:shadow-lg hover:bg-indigo-50 transition duration-150 flex justify-between items-center border border-gray-200"
                                   >
                                     <span className="text-base font-medium text-gray-900">
