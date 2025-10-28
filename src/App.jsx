@@ -158,12 +158,13 @@ const App = () => {
                                   <button
                                     key={promptItem.title}
                                     onClick={() => handlePromptClick(category.title, subcategory.title, promptItem)}
-                                    className="w-full text-left p-3 bg-white border border-indigo-100 rounded-lg shadow-sm hover:shadow-md hover:border-indigo-300 transition duration-150 flex justify-between items-center"
+                                    // CLASES DE DISEÑO DE 'TARJETA DE PROMPT' APLICADAS AQUÍ
+                                    className="w-full text-left p-4 bg-white rounded-xl shadow-md hover:shadow-lg hover:bg-indigo-50 transition duration-150 flex justify-between items-center border border-gray-200"
                                   >
-                                    <span className="text-sm font-semibold text-gray-900">
+                                    <span className="text-base font-medium text-gray-900">
                                       {promptItem.title}
                                     </span>
-                                    <span className="text-indigo-500 text-xs font-medium">
+                                    <span className="text-indigo-600 text-sm font-semibold flex items-center">
                                       Ver Detalle <ChevronRight className="w-4 h-4 inline ml-1" />
                                     </span>
                                   </button>
