@@ -5,8 +5,7 @@ import { highlightPlaceholders, countPlaceholders } from '../utils/highlightPlac
 /**
  * Modal de vista detallada de prompt
  * Muestra el prompt completo con opciones de copiar y usar en Claude/ChatGPT
- * 
- * @param {Object} promptData - Datos del prompt { categoryTitle, subcategoryTitle, promptItem }
+ * * @param {Object} promptData - Datos del prompt { categoryTitle, subcategoryTitle, promptItem }
  * @param {function} onClose - Callback para cerrar el modal
  */
 const PromptDetailModal = ({ promptData, onClose }) => {
@@ -51,13 +50,14 @@ const PromptDetailModal = ({ promptData, onClose }) => {
   };
 
   // Cerrar con tecla ESC
+  // AJUSTE CRÍTICO: Se incluye handleClose en el array de dependencias para cumplir con las reglas de Hooks
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') handleClose();
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, []);
+  }, [handleClose]); // <--- ¡SOLUCIÓN AL ERROR DE COMPILACIÓN!
 
   return (
     <div 
