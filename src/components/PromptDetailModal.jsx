@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react'; // <-- CAMBIO 1: Importar useCallback
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Copy, ExternalLink, Check } from 'lucide-react';
 import { highlightPlaceholders, countPlaceholders } from '../utils/highlightPlaceholders';
 
 /**
  * Modal de vista detallada de prompt
- * Muestra el prompt completo con opciones de copiar y usar en Claude/ChatGPT
- * * @param {Object} promptData - Datos del prompt { categoryTitle, subcategoryTitle, promptItem }
+ * * @param {function} onCopySuccess - NUEVA: Callback para notificar que el copiado fue exitoso.
  * @param {function} onClose - Callback para cerrar el modal
  */
-const PromptDetailModal = ({ promptData, onClose }) => {
+const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => { // <-- NUEVA PROP
   const { categoryTitle, subcategoryTitle, promptItem } = promptData;
   const [copied, setCopied] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -28,8 +27,16 @@ const PromptDetailModal = ({ promptData, onClose }) => {
   const handleCopyPrompt = async () => {
     try {
       await navigator.clipboard.writeText(promptItem.prompt);
+      
+      // LÓGICA DE FEEDBACK
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      
+      // LLAMAR A LA NOTIFICACIÓN GLOBAL
+      if (onCopySuccess) {
+          onCopySuccess();
+      }
+
     } catch (err) {
       // Fallback para navegadores antiguos
       const el = document.createElement('textarea');
@@ -38,17 +45,23 @@ const PromptDetailModal = ({ promptData, onClose }) => {
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
+      
+      // LÓGICA DE FEEDBACK
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      
+      // LLAMAR A LA NOTIFICACIÓN GLOBAL
+      if (onCopySuccess) {
+          onCopySuccess();
+      }
     }
   };
 
   // Función para cerrar con animación
-  // CAMBIO 2: Envolver handleClose con useCallback
   const handleClose = useCallback(() => {
     setIsVisible(false);
     setTimeout(onClose, 300);
-  }, [onClose]); // <-- onClose es su única dependencia
+  }, [onClose]);
 
   // Cerrar con tecla ESC
   useEffect(() => {
@@ -57,7 +70,7 @@ const PromptDetailModal = ({ promptData, onClose }) => {
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [handleClose]); // Ahora handleClose es estable
+  }, [handleClose]);
 
   return (
     <div 
@@ -148,6 +161,7 @@ const PromptDetailModal = ({ promptData, onClose }) => {
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
+              onClick={() => handleCopyPrompt()} // Copia el prompt al hacer clic en Ejecutar
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en Claude
             </a>
@@ -158,6 +172,7 @@ const PromptDetailModal = ({ promptData, onClose }) => {
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
+              onClick={() => handleCopyPrompt()} // Copia el prompt al hacer clic en Ejecutar
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en ChatGPT
             </a>
