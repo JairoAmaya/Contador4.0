@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Check } from 'lucide-react'; // Importamos Check para el Toast
+// Importamos 'useEffect' si la lógica de uso de 'toastVisible' se complica, pero por ahora solo 'useState'
 
 // Importar componentes
 import Header from './components/Header';
@@ -20,6 +21,9 @@ const App = () => {
   // Estado del modal
   const [selectedPrompt, setSelectedPrompt] = useState(null);
   
+  // ESTADO NUEVO: Estado para controlar la visibilidad del Toast
+  const [toastVisible, setToastVisible] = useState(false);
+
   // Hook personalizado de búsqueda
   const {
     searchText,
@@ -37,6 +41,14 @@ const App = () => {
   // Maneja apertura del modal
   const handlePromptClick = (categoryTitle, subcategoryTitle, promptItem) => {
     setSelectedPrompt({ categoryTitle, subcategoryTitle, promptItem });
+  };
+
+  // FUNCIÓN NUEVA: Muestra la notificación flotante
+  const handleCopySuccess = () => {
+    setToastVisible(true);
+    setTimeout(() => {
+      setToastVisible(false);
+    }, 2500); // Duración similar a tu plantilla de referencia
   };
 
   // Función para obtener ícono de colapsado
@@ -107,7 +119,6 @@ const App = () => {
                         : 'bg-white hover:bg-gray-50 text-gray-800'
                     }`}
                     onClick={() => toggleCollapse(category.title)}
-                    // AQUÍ ESTABA: disabled={!!searchText} <--- LÍNEA ELIMINADA
                   >
                     <div className="text-xl font-bold flex items-center">
                       <span className="mr-3 text-2xl">{category.icon}</span> 
@@ -137,7 +148,6 @@ const App = () => {
                                   : 'bg-gray-50 hover:bg-gray-100'
                               }`}
                               onClick={() => toggleCollapse(subcategory.title)}
-                              // AQUÍ ESTABA: disabled={!!searchText} <--- LÍNEA ELIMINADA
                             >
                               <h3 className="text-base font-semibold text-gray-700 flex items-center">
                                 <span className="ml-2">
@@ -193,8 +203,16 @@ const App = () => {
         <PromptDetailModal 
           promptData={selectedPrompt} 
           onClose={() => setSelectedPrompt(null)} 
+          onCopySuccess={handleCopySuccess} // <-- PASAMOS LA FUNCIÓN DEL TOAST
         />
       )}
+
+      {/* TOAST NOTIFICATION (NUEVO) */}
+      <div className={`fixed bottom-5 right-5 bg-gray-900 text-white px-5 py-3 rounded-lg shadow-xl transition-opacity duration-300 z-50 flex items-center gap-2 ${toastVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <Check className="w-5 h-5 text-green-400" />
+          <span>¡Prompt copiado al portapapeles!</span>
+      </div>
+      
     </div>
   );
 };
