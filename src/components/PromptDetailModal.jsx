@@ -1,56 +1,94 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Copy, ExternalLink, Check } from 'lucide-react';
-import { highlightPlaceholders, countPlaceholders } from '../utils/highlightPlaceholders';
+import { X, Copy, ExternalLink, Check, RotateCcw } from 'lucide-react'; // Añadimos RotateCcw para reset
+// Importamos las utilidades necesarias
+import { highlightPlaceholders, countPlaceholders, extractPlaceholders } from '../utils/highlightPlaceholders'; 
 
 /**
  * Modal de vista detallada de prompt
- * * @param {function} onCopySuccess - NUEVA: Callback para notificar que el copiado fue exitoso.
+ * @param {function} onCopySuccess - Callback para notificar que el copiado fue exitoso.
  * @param {function} onClose - Callback para cerrar el modal
+ * @param {Object} promptData - Datos del prompt
  */
-const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => { // <-- NUEVA PROP
+const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
   const { categoryTitle, subcategoryTitle, promptItem } = promptData;
   const [copied, setCopied] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+
+  // Lógica de Variables: Extraer variables y crear estado de reemplazo
+  const initialPlaceholders = extractPlaceholders(promptItem.prompt);
+  // Estado para guardar los valores que el usuario ingresa
+  const [replacements, setReplacements] = useState(() => {
+    // Inicializar el estado de reemplazo con las variables originales [VARIABLE]
+    const initialState = {};
+    initialPlaceholders.forEach(ph => {
+      initialState[ph] = `[${ph}]`;
+    });
+    return initialState;
+  });
+  
+  const hasPlaceholders = initialPlaceholders.length > 0;
 
   // Animación de entrada
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 10);
   }, []);
 
-  // Determinar la ruta de navegación
-  const navigationPath = `${categoryTitle} > ${subcategoryTitle}`;
+  // Función para obtener el prompt final con las sustituciones del usuario
+  const getFinalPrompt = () => {
+    let finalPrompt = promptItem.prompt;
+    if (hasPlaceholders) {
+      initialPlaceholders.forEach(ph => {
+        // Sustituir [VARIABLE] por el valor ingresado por el usuario (o el placeholder original si está vacío)
+        const value = replacements[ph] || `[${ph}]`;
+        finalPrompt = finalPrompt.replace(new RegExp(`\\[${ph}\\]`, 'g'), value);
+      });
+    }
+    return finalPrompt;
+  };
   
-  // Contar variables en el prompt
-  const variableCount = countPlaceholders(promptItem.prompt);
+  // Manejador de cambio en los campos de reemplazo
+  const handleReplacementChange = (placeholder, value) => {
+    setReplacements(prev => ({
+      ...prev,
+      [placeholder]: value
+    }));
+  };
+
+  // Restablecer todos los campos a los valores iniciales [VARIABLE]
+  const handleResetReplacements = () => {
+    const initialState = {};
+    initialPlaceholders.forEach(ph => {
+      initialState[ph] = `[${ph}]`;
+    });
+    setReplacements(initialState);
+  };
 
   // Función para copiar al portapapeles
   const handleCopyPrompt = async () => {
+    const finalPrompt = getFinalPrompt(); // Obtener el prompt con las sustituciones
+    
     try {
-      await navigator.clipboard.writeText(promptItem.prompt);
+      await navigator.clipboard.writeText(finalPrompt);
       
-      // LÓGICA DE FEEDBACK
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       
-      // LLAMAR A LA NOTIFICACIÓN GLOBAL
       if (onCopySuccess) {
           onCopySuccess();
       }
 
     } catch (err) {
-      // Fallback para navegadores antiguos
+      // Fallback
       const el = document.createElement('textarea');
-      el.value = promptItem.prompt;
+      el.value = finalPrompt;
       document.body.appendChild(el);
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
       
-      // LÓGICA DE FEEDBACK
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       
-      // LLAMAR A LA NOTIFICACIÓN GLOBAL
       if (onCopySuccess) {
           onCopySuccess();
       }
@@ -71,6 +109,10 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => { // <-- N
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [handleClose]);
+
+  // Resto de datos
+  const navigationPath = `${categoryTitle} > ${subcategoryTitle}`;
+  const variableCount = countPlaceholders(promptItem.prompt);
 
   return (
     <div 
@@ -110,25 +152,68 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => { // <-- N
             </button>
           </div>
 
-          {/* Contenido del Prompt */}
+          {/* NUEVA SECCIÓN: FORMULARIO DE REEMPLAZO DE VARIABLES */}
+          {hasPlaceholders && (
+              <div className="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+                  <div className="flex justify-between items-center mb-4 border-b pb-3 border-blue-200">
+                    <h3 className="text-lg font-bold text-blue-800">✍️ Personalizar Variables ({initialPlaceholders.length})</h3>
+                    <button 
+                        onClick={handleResetReplacements}
+                        className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition duration-150"
+                        title="Restablecer valores originales"
+                    >
+                        <RotateCcw className="w-4 h-4 mr-1" />
+                        Reset
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {initialPlaceholders.map(ph => (
+                          <div key={ph} className="flex flex-col">
+                              <label className="text-xs font-semibold text-gray-600 mb-1 block">
+                                  {ph.toUpperCase()}
+                              </label>
+                              <input
+                                  type="text"
+                                  value={replacements[ph] || ''}
+                                  onChange={(e) => handleReplacementChange(ph, e.target.value)}
+                                  placeholder={`Ingresa el valor para [${ph}]`}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                              />
+                          </div>
+                      ))}
+                  </div>
+              </div>
+          )}
+          {/* FIN: FORMULARIO DE REEMPLAZO DE VARIABLES */}
+
+
+          {/* Contenido del Prompt (Ahora muestra el prompt original sin sustituir) */}
           <div className="mb-8">
             <p className="text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Contenido del Prompt:
+              Contenido del Prompt Original:
             </p>
             <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-inner">
               <pre className="text-base text-gray-800 whitespace-pre-wrap leading-relaxed" style={{ fontFamily: 'Lato, sans-serif' }}>
-                {highlightPlaceholders(promptItem.prompt)}
+                {highlightPlaceholders(promptItem.prompt)} 
               </pre>
             </div>
           </div>
 
           {/* Instrucciones rápidas */}
           <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="text-sm font-bold text-blue-800 mb-2">📝 Cómo usar este prompt:</h4>
+            <h4 className="text-sm font-bold text-blue-800 mb-2">📝 Instrucciones de Copiado:</h4>
             <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-              <li>Reemplaza las <strong className="text-orange-600">variables en naranja</strong> con tu información específica</li>
-              <li>Copia el prompt completo o úsalo directamente en Claude/ChatGPT</li>
-              <li>Ajusta el nivel de detalle según tus necesidades</li>
+              {hasPlaceholders ? (
+                <>
+                  <li>Completa los campos de **"Personalizar Variables"** arriba.</li>
+                  <li>Al copiar, el prompt incluirá automáticamente tus sustituciones.</li>
+                </>
+              ) : (
+                <li>Este prompt es de uso inmediato. Cópialo directamente.</li>
+              )}
+              
+              <li>Copia el prompt completo o úsalo directamente en Claude/ChatGPT.</li>
             </ul>
           </div>
 
@@ -150,29 +235,28 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => { // <-- N
                 </>
               ) : (
                 <>
-                  <Copy className="w-5 h-5 mr-2" /> Copiar Prompt
+                  <Copy className="w-5 h-5 mr-2" /> Copiar Prompt Final
                 </>
               )}
             </button>
             
-            {/* Botón Claude */}
+            {/* Botones de Ejecución */}
             <a 
-              href={`https://claude.ai/new?q=${encodeURIComponent(promptItem.prompt)}`}
+              href={`https://claude.ai/new?q=${encodeURIComponent(getFinalPrompt())}`} // Usa el prompt final
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
-              onClick={() => handleCopyPrompt()} // Copia el prompt al hacer clic en Ejecutar
+              onClick={() => handleCopyPrompt()} 
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en Claude
             </a>
 
-            {/* Botón ChatGPT */}
             <a 
-              href={`https://chat.openai.com/?q=${encodeURIComponent(promptItem.prompt)}`}
+              href={`https://chat.openai.com/?q=${encodeURIComponent(getFinalPrompt())}`} // Usa el prompt final
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
-              onClick={() => handleCopyPrompt()} // Copia el prompt al hacer clic en Ejecutar
+              onClick={() => handleCopyPrompt()} 
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en ChatGPT
             </a>
