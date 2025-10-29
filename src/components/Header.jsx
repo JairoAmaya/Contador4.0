@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, BarChart2 } from 'lucide-react'; // Añadimos iconos para mayor impacto visual
+import { BarChart2 } from 'lucide-react'; // Mantenemos BarChart2 para el badge filtrado
 
 /**
  * Componente Header
@@ -8,34 +8,32 @@ import { Sparkles, BarChart2 } from 'lucide-react'; // Añadimos iconos para may
  * @param {number} filteredCount - Prompts visibles después de filtrar (opcional)
  */
 const Header = ({ totalPrompts = 105, filteredCount = null }) => {
-  // Las categorías se asumen como 7 (o puedes pasarlas como prop si las tienes)
+  // Las categorías se asumen como 7 
   const numCategories = 7;
   const isFiltered = filteredCount !== null && filteredCount !== totalPrompts;
 
   return (
-    // CONTENEDOR PRINCIPAL: Fondo Índigo corporativo, padding amplio y esquinas redondeadas
+    // Contenedor principal: Fondo Índigo corporativo, padding amplio y esquinas redondeadas
     <header className="max-w-4xl mx-auto mb-8 p-6 sm:p-8 bg-indigo-700 text-white rounded-2xl shadow-xl">
       
-      {/* TÍTULO Y BADGE DE VERSIÓN (Alineación con el diseño moderno) */}
+      {/* TÍTULO IMPACTANTE (Más grande y en blanco) */}
       <div className="flex items-start justify-between">
-        <h1 className="flex items-center text-3xl md:text-4xl font-extrabold font-display">
-          {/* Icono de Marca */}
-          <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-orange-400 mr-3" />
+        <h1 className="text-4xl md:text-5xl font-extrabold font-display text-white"> 
           Contador 4.0 Express
         </h1>
 
-        {/* Badge de versión (Más integrado) */}
+        {/* Badge de versión */}
         <div className="inline-flex items-center px-3 py-1 bg-indigo-600 text-indigo-100 rounded-full shadow-sm">
           <span className="text-xs font-semibold">v2.0</span>
         </div>
       </div>
 
-      {/* DESCRIPCIÓN CLAVE */}
+      {/* SUBTÍTULO / DESCRIPCIÓN (Texto actualizado) */}
       <p className="mt-3 text-indigo-100 text-base leading-relaxed max-w-3xl">
-        Sistema de transformación con IA para contadores, especializado en **análisis financiero, auditoría y cumplimiento**. Explora nuestra colección.
+        Sistema de transformación con IA para contadores, que incluye más de **{totalPrompts} prompts especializados** listos para usar.
       </p>
 
-      {/* SECCIÓN DE ESTADÍSTICAS (Diseño de cápsula - Manteniendo tus datos) */}
+      {/* SECCIÓN DE ESTADÍSTICAS */}
       <div className="mt-6 pt-4 border-t border-indigo-600 flex flex-wrap gap-3 text-sm font-medium">
         
         {/* Total de prompts */}
