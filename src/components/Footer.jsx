@@ -1,42 +1,39 @@
 import React from 'react';
 
 /**
- * Componente Footer
- * Muestra créditos, copyright y enlaces importantes
+ * Componente de Footer de la aplicación.
  */
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
+  
   return (
-    <footer className="max-w-4xl mx-auto mt-12 pt-6 border-t border-gray-300">
-      <div className="text-center space-y-4">
-        {/* Texto principal */}
-        <p className="text-sm text-gray-600 leading-relaxed" style={{ fontFamily: 'Lato, sans-serif' }}>
-          <strong>Contador 4.0 Express</strong> es un complemento del E.Book{' '}
-          <em>Contador 4.0 Sistema de Transformación con IA para contadores</em>{' '}
-          que incluye 105 prompts especializados y fue desarrollado por{' '}
+    // Estilos modernos: bg-white y borde superior, alineado al ancho máximo (max-w-4xl) de la app
+    <footer className="mt-16 border-t border-gray-200 bg-white">
+      <div className="container mx-auto max-w-4xl px-4 py-8 text-center text-sm text-gray-500">
+        
+        {/* TÍTULO/VERSIÓN (Badge) */}
+        <div className="pt-2">
+            <span className="inline-block px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-100 rounded-full">
+                v2.0.0
+            </span>
+        </div>
+
+        {/* TEXTO CENTRAL */}
+        <p className="font-display font-semibold text-gray-700 text-base mt-2">
+          Contador 4.0 Express v2
+        </p>
+        <p className="mt-1 text-gray-600 leading-relaxed">
+          Es un complemento digital del E-Book <span className="font-bold text-gray-800">"Contador 4.0: Sistema de Transformación con IA"</span>
+          <br className="sm:hidden" /> que incluye prompts especializados para contadores.
+        </p>
+
+        {/* ENLACES ADICIONALES (Reorganizados) */}
+        <div className="flex justify-center gap-4 text-xs mt-4">
           <a 
             href="https://jairoamaya.co" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="text-indigo-600 hover:text-indigo-800 font-semibold underline transition duration-150"
-          >
-            Jairo Amaya - Full Stack Marketer
-          </a>.
-        </p>
-
-        {/* Copyright */}
-        <p className="text-xs text-gray-500">
-          Todos los derechos reservados © {currentYear}
-        </p>
-
-        {/* Links adicionales (opcional) */}
-        <div className="flex justify-center gap-6 text-xs text-gray-500">
-          <a 
-            href="https://jairoamaya.co" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hover:text-indigo-600 transition duration-150"
+            className="text-indigo-600 hover:text-indigo-800 transition duration-150"
           >
             Sitio Web
           </a>
@@ -44,7 +41,7 @@ const Footer = () => {
           <a 
             href="https://linkedin.com/in/jairoamaya" 
             target="_blank" 
-            rel="noopener noreferrer"
+            rel="noopener noreferrer" 
             className="hover:text-indigo-600 transition duration-150"
           >
             LinkedIn
@@ -57,13 +54,14 @@ const Footer = () => {
             Contacto
           </a>
         </div>
-
-        {/* Badge de versión */}
-        <div className="pt-2">
-          <span className="inline-block px-3 py-1 text-xs font-semibold text-indigo-700 bg-indigo-100 rounded-full">
-            v2.0.0
-          </span>
-        </div>
+        
+        {/* COPYRIGHT */}
+        <p className="mt-4 text-xs text-gray-500">
+          Desarrollado por <span className="font-semibold text-gray-700">Jairo Amaya - Full Stack Marketer</span>.
+        </p>
+        <p className="mt-1 text-xs text-gray-500">
+          Todos los derechos reservados &copy; {currentYear}.
+        </p>
       </div>
     </footer>
   );
