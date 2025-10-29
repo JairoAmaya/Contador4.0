@@ -48,7 +48,7 @@ const Footer = () => {
           </a>
           <span>•</span>
           <a 
-            href="mailto:contacto@jairoamaya.co"
+            href="mailto:hola@jairoamaya.co"
             className="hover:text-indigo-600 transition duration-150"
           >
             Contacto
