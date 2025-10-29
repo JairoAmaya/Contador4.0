@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Check } from 'lucide-react';
 
 // Importar componentes
 import Header from './components/Header';
@@ -20,7 +20,7 @@ const App = () => {
   // Estado del modal
   const [selectedPrompt, setSelectedPrompt] = useState(null);
   const [toastVisible, setToastVisible] = useState(false); // Mantener estado de Toast
-  
+
   // Hook personalizado de búsqueda
   const {
     searchText,
@@ -40,7 +40,7 @@ const App = () => {
     setSelectedPrompt({ categoryTitle, subcategoryTitle, promptItem });
   };
 
-  // Muestra la notificación flotante
+  // FUNCIÓN NUEVA: Muestra la notificación flotante
   const handleCopySuccess = () => {
     setToastVisible(true);
     setTimeout(() => {
@@ -113,7 +113,7 @@ const App = () => {
                     className={`w-full text-left p-5 flex items-center justify-between transition duration-150 rounded-t-2xl ${
                       categoryExpanded 
                         ? 'bg-indigo-600 text-white' 
-                        : 'bg-white hover:bg-gray-50 text-gray-800' // AZUL/ÍNDIGO UNIFICADO
+                        : 'bg-white hover:bg-gray-50 text-gray-800'
                     }`}
                     onClick={() => toggleCollapse(category.title)}
                   >
@@ -152,8 +152,9 @@ const App = () => {
                                   <span className="font-normal text-sm text-indigo-500">
                                     ({subcategory.prompts.length})
                                   </span>
-                                </h3>
-                              {getIcon(subcategory.title)}
+                                </span> 
+                              </h3> {/* <--- CORRECCIÓN DE CIERRE JSX APLICADA AQUÍ */}
+                            {getIcon(subcategory.title)}
                             </button>
                             
                             {/* Lista de Prompts (Nivel 3) */}
@@ -164,7 +165,7 @@ const App = () => {
                                   <button
                                     key={promptItem.title}
                                     onClick={() => handlePromptClick(category.title, subcategory.title, promptItem)}
-                                    // ESTILO UNIFICADO CON ÍNDIGO/AZUL
+                                    // Estilos de Tarjeta
                                     className="w-full text-left p-4 bg-white rounded-xl shadow-md hover:shadow-lg hover:bg-indigo-50 transition duration-150 flex justify-between items-center border border-gray-200"
                                   >
                                     <span className="text-base font-medium text-gray-900">
