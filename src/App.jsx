@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Check } from 'lucide-react';
+import { ChevronDown, ChevronRight, Check, Sparkles, BarChart2 } from 'lucide-react';
 
 // Importar componentes
 import Header from './components/Header';
@@ -100,7 +100,8 @@ const App = () => {
         {displayedPrompts.length > 0 && (
           <div className="space-y-6">
             {displayedPrompts.map(category => {
-              const categoryExpanded = collapsedState[category.title] || searchText;
+              // CORRECCIÓN 1: Solo expandir si es TRUE (o hay búsqueda)
+              const categoryExpanded = collapsedState[category.title] === true || searchText; 
               
               return (
                 <section 
@@ -129,7 +130,8 @@ const App = () => {
                     <div className="p-6 pt-4 space-y-5 border-t border-gray-100">
                       
                       {category.subcategories.map(subcategory => {
-                        const subcategoryExpanded = collapsedState[subcategory.title] || searchText;
+                        // CORRECCIÓN 2: Solo expandir si es TRUE (o hay búsqueda)
+                        const subcategoryExpanded = collapsedState[subcategory.title] === true || searchText; 
                         
                         return (
                           <div 
@@ -152,8 +154,8 @@ const App = () => {
                                   <span className="font-normal text-sm text-indigo-500">
                                     ({subcategory.prompts.length})
                                   </span>
-                                </span> 
-                              </h3> {/* <--- CORRECCIÓN DE CIERRE JSX APLICADA AQUÍ */}
+                                </span>
+                              </h3>
                             {getIcon(subcategory.title)}
                             </button>
                             
