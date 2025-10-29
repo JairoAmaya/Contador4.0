@@ -37,6 +37,8 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
     if (hasPlaceholders) {
       initialPlaceholders.forEach(ph => {
         const value = replacements[ph] || `[${ph}]`;
+        // Nota: El valor de reemplazo debe ser el valor del input, no el valor original [ph]
+        // Si el usuario deja el campo vacío, se mantiene el valor por defecto: [ph]
         finalPrompt = finalPrompt.replace(new RegExp(`\\[${ph}\\]`, 'g'), value);
       });
     }
@@ -92,7 +94,7 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
     }
   };
 
-  // FUNCIÓN NUEVA: Maneja la acción de abrir la plataforma (Copia y Abre)
+  // FUNCIÓN: Maneja la acción de abrir la plataforma (Copia y Abre)
   const handleExecutePrompt = async (platformBaseUrl, event) => {
       // 1. Evitar que el navegador abra el enlace inmediatamente (para forzar la copia)
       event.preventDefault(); 
@@ -100,7 +102,7 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
       // 2. Obtener el prompt final del estado actual
       const finalPrompt = getFinalPrompt();
       
-      // 3. COPIAR EL PROMPT (Llama a la función que ya funciona, pero sin mostrar el Toast por duplicado)
+      // 3. COPIAR EL PROMPT (Llama a la función que ya funciona, para el Toast)
       await handleCopyPrompt(); 
       
       // 4. Abrir la URL con el prompt final codificado
@@ -254,26 +256,20 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
               )}
             </button>
             
-            {/* Botones de Ejecución (CORREGIDOS) */}
-            <a 
-              href="#" // Usamos un placeholder
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
+            {/* Botones de Ejecución (CORREGIDOS: DE <a> A <button>) */}
+            <button
               onClick={(e) => handleExecutePrompt('https://claude.ai/new?q=', e)} // Llama a la nueva función
+              className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en Claude
-            </a>
+            </button>
 
-            <a 
-              href="#" // Usamos un placeholder
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
+            <button
               onClick={(e) => handleExecutePrompt('https://chat.openai.com/?q=', e)} // Llama a la nueva función
+              className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en ChatGPT
-            </a>
+            </button>
           </div>
 
           {/* Footer del modal con tips */}
