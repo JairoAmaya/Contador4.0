@@ -3,10 +3,7 @@ import { filterPrompts, countPrompts } from '../utils/filterPrompts';
 
 /**
  * Custom Hook para manejar búsqueda de prompts
- * Encapsula la lógica de búsqueda, filtrado y estado de colapsado
- * 
- * @param {Array} data - Array de categorías con prompts
- * @returns {Object} - { searchText, setSearchText, displayedPrompts, collapsedState, toggleCollapse, handleClearSearch, filteredCount }
+ * VERSIÓN MEJORADA: Acordeón colapsado por defecto, expandido solo en búsqueda
  */
 const useSearch = (data) => {
   const [searchText, setSearchText] = useState('');
@@ -22,9 +19,10 @@ const useSearch = (data) => {
     return countPrompts(displayedPrompts);
   }, [displayedPrompts]);
 
-  // Expandir automáticamente todo cuando hay búsqueda
+  // 🆕 MEJORA: Auto-expansión SOLO cuando hay búsqueda
   useEffect(() => {
-    if (searchText) {
+    if (searchText && searchText.trim() !== '') {
+      // CON búsqueda: expandir todo automáticamente
       const newCollapsedState = {};
       displayedPrompts.forEach(category => {
         newCollapsedState[category.title] = true;
@@ -33,6 +31,9 @@ const useSearch = (data) => {
         });
       });
       setCollapsedState(newCollapsedState);
+    } else {
+      // SIN búsqueda: colapsar todo (acordeón cerrado)
+      setCollapsedState({});
     }
   }, [searchText, displayedPrompts]);
 
@@ -46,10 +47,10 @@ const useSearch = (data) => {
     }
   };
 
-  // Limpiar búsqueda y resetear estado
+  // Limpiar búsqueda y resetear estado (todo colapsado)
   const handleClearSearch = () => {
     setSearchText('');
-    setCollapsedState({});
+    setCollapsedState({}); // ← Esto colapsa todo
   };
 
   return {
