@@ -20,7 +20,7 @@ const Footer = () => {
 
         {/* TEXTO CENTRAL */}
         <p className="font-display font-semibold text-gray-700 text-base mt-2">
-          Contador 4.0 Express v2
+          Contador 4.0 Express 
         </p>
         <p className="mt-1 text-gray-600 leading-relaxed">
           Es un complemento digital del E-Book <span className="font-bold text-gray-800">"Contador 4.0: Sistema de Transformación con IA"</span>
