@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Check, Sparkles, BarChart2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Check } from 'lucide-react'; // <-- Sparkles y BarChart2 eliminados
 
 // Importar componentes
 import Header from './components/Header';
@@ -19,7 +19,7 @@ import { countPrompts } from './utils/filterPrompts';
 const App = () => {
   // Estado del modal
   const [selectedPrompt, setSelectedPrompt] = useState(null);
-  const [toastVisible, setToastVisible] = useState(false); // Mantener estado de Toast
+  const [toastVisible, setToastVisible] = useState(false); 
 
   // Hook personalizado de búsqueda
   const {
