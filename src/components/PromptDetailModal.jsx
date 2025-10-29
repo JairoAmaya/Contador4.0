@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Copy, ExternalLink, Check, RotateCcw } from 'lucide-react'; // Añadimos RotateCcw para reset
+import { X, Copy, ExternalLink, Check, RotateCcw } from 'lucide-react'; 
 // Importamos las utilidades necesarias
 import { highlightPlaceholders, countPlaceholders, extractPlaceholders } from '../utils/highlightPlaceholders'; 
 
@@ -16,9 +16,7 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
 
   // Lógica de Variables: Extraer variables y crear estado de reemplazo
   const initialPlaceholders = extractPlaceholders(promptItem.prompt);
-  // Estado para guardar los valores que el usuario ingresa
   const [replacements, setReplacements] = useState(() => {
-    // Inicializar el estado de reemplazo con las variables originales [VARIABLE]
     const initialState = {};
     initialPlaceholders.forEach(ph => {
       initialState[ph] = `[${ph}]`;
@@ -38,7 +36,6 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
     let finalPrompt = promptItem.prompt;
     if (hasPlaceholders) {
       initialPlaceholders.forEach(ph => {
-        // Sustituir [VARIABLE] por el valor ingresado por el usuario (o el placeholder original si está vacío)
         const value = replacements[ph] || `[${ph}]`;
         finalPrompt = finalPrompt.replace(new RegExp(`\\[${ph}\\]`, 'g'), value);
       });
@@ -94,6 +91,23 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
       }
     }
   };
+
+  // FUNCIÓN NUEVA: Maneja la acción de abrir la plataforma (Copia y Abre)
+  const handleExecutePrompt = async (platformBaseUrl, event) => {
+      // 1. Evitar que el navegador abra el enlace inmediatamente (para forzar la copia)
+      event.preventDefault(); 
+      
+      // 2. Obtener el prompt final del estado actual
+      const finalPrompt = getFinalPrompt();
+      
+      // 3. COPIAR EL PROMPT (Llama a la función que ya funciona, pero sin mostrar el Toast por duplicado)
+      await handleCopyPrompt(); 
+      
+      // 4. Abrir la URL con el prompt final codificado
+      const finalUrl = `${platformBaseUrl}${encodeURIComponent(finalPrompt)}`;
+      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+  };
+
 
   // Función para cerrar con animación
   const handleClose = useCallback(() => {
@@ -240,23 +254,23 @@ const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
               )}
             </button>
             
-            {/* Botones de Ejecución */}
+            {/* Botones de Ejecución (CORREGIDOS) */}
             <a 
-              href={`https://claude.ai/new?q=${encodeURIComponent(getFinalPrompt())}`} // Usa el prompt final
+              href="#" // Usamos un placeholder
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
-              onClick={() => handleCopyPrompt()} 
+              onClick={(e) => handleExecutePrompt('https://claude.ai/new?q=', e)} // Llama a la nueva función
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en Claude
             </a>
 
             <a 
-              href={`https://chat.openai.com/?q=${encodeURIComponent(getFinalPrompt())}`} // Usa el prompt final
+              href="#" // Usamos un placeholder
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
-              onClick={() => handleCopyPrompt()} 
+              onClick={(e) => handleExecutePrompt('https://chat.openai.com/?q=', e)} // Llama a la nueva función
             >
               <ExternalLink className="w-5 h-5 mr-2" /> Usar en ChatGPT
             </a>
