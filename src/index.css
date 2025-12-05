@@ -1,4 +1,4 @@
-/* Importar Tailwind CSS desde CDN (si no usas npm install) */
+/* Importar Tailwind CSS desde CDN */
 @import url('https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css');
 
 /* Importar fuentes de Google */
@@ -15,10 +15,13 @@
   --accent-color: #facc15;        /* Amarillo Dorado (Estrellas, Bonus) */
   
   /* --- ESCALA DE GRISES (Invertida para Modo Oscuro) --- */
+  /* Lo que antes era claro (fondos), ahora es oscuro */
   --gray-50: #f8fafc;  /* Texto principal (Casi blanco) */
   --gray-100: #1e293b; /* Fondos de tarjetas / Bloques */
   --gray-200: #334155; /* Bordes y líneas divisorias */
   --gray-300: #475569; /* Textos deshabilitados */
+  
+  /* Lo que antes era oscuro (textos), ahora es claro */
   --gray-500: #94a3b8; /* Texto secundario */
   --gray-700: #cbd5e1; /* Texto cuerpo suave */
   --gray-800: #e2e8f0; /* Texto cuerpo fuerte */
