@@ -1,27 +1,28 @@
-/* Importar Tailwind CSS desde CDN */
+/* Importar Tailwind CSS desde CDN (si no usas npm install) */
 @import url('https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css');
 
 /* Importar fuentes de Google */
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@600;700;800&display=swap');
 
 /* ========================================
-   VARIABLES CSS PERSONALIZADAS (TEMA CONTADOR 4.0)
+   VARIABLES CSS PERSONALIZADAS (TEMA DARK - CONTADOR 4.0)
    ======================================== */
 :root {
-  /* --- CAMBIO: Paleta Dark Mode "Contador 4.0" --- */
-  --primary-color: #3b82f6;       /* Azul Brillante */
-  --primary-glow: rgba(59, 130, 246, 0.6); /* Resplandor Azul */
-  --secondary-color: #0f172a;     /* Fondo Slate Oscuro */
-  --accent-color: #facc15;        /* Amarillo/Dorado (Estrellas/Bonus) */
+  /* --- PALETA DE COLORES (Dark Mode + Neón) --- */
+  --primary-color: #3b82f6;       /* Azul Brillante (Botones, Links, Acentos) */
+  --primary-glow: rgba(59, 130, 246, 0.6); /* Resplandor Azul (Sombras Neón) */
+  --secondary-color: #0f172a;     /* Fondo Slate Oscuro (Body, Footer) */
+  --accent-color: #facc15;        /* Amarillo Dorado (Estrellas, Bonus) */
   
-  /* Escala de grises (Adaptada a modo oscuro) */
-  --gray-50: #f8fafc;  /* Texto principal */
-  --gray-100: #1e293b; /* Fondos de tarjetas */
-  --gray-200: #334155; /* Bordes */
-  --gray-300: #475569;
-  --gray-500: #64748b; /* Texto secundario */
-  --gray-800: #cbd5e1;
-  --gray-900: #ffffff; /* Títulos */
+  /* --- ESCALA DE GRISES (Invertida para Modo Oscuro) --- */
+  --gray-50: #f8fafc;  /* Texto principal (Casi blanco) */
+  --gray-100: #1e293b; /* Fondos de tarjetas / Bloques */
+  --gray-200: #334155; /* Bordes y líneas divisorias */
+  --gray-300: #475569; /* Textos deshabilitados */
+  --gray-500: #94a3b8; /* Texto secundario */
+  --gray-700: #cbd5e1; /* Texto cuerpo suave */
+  --gray-800: #e2e8f0; /* Texto cuerpo fuerte */
+  --gray-900: #ffffff; /* Títulos (Blanco puro) */
   
   /* Tipografía */
   --font-heading: 'Poppins', sans-serif;
@@ -34,7 +35,7 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   
-  /* Sombras */
+  /* Sombras (Ajustadas para fondo oscuro) */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
@@ -57,8 +58,8 @@
 
 body {
   font-family: var(--font-body);
-  color: var(--gray-50);       /* Texto claro */
-  background-color: var(--secondary-color); /* Fondo oscuro */
+  color: var(--gray-50);       /* Texto claro por defecto */
+  background-color: var(--secondary-color); /* Fondo oscuro por defecto */
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -89,7 +90,7 @@ p {
 
 html { scroll-behavior: smooth; }
 
-/* Scrollbar personalizado (Naranja/Azul según marca) */
+/* Scrollbar personalizado */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--secondary-color); }
 ::-webkit-scrollbar-thumb { 
@@ -105,6 +106,7 @@ html { scroll-behavior: smooth; }
 }
 .fade-in { animation: fadeIn var(--transition-medium) ease-out; }
 
+/* Animación Pulse */
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
@@ -128,7 +130,7 @@ html { scroll-behavior: smooth; }
   padding: 0 var(--spacing-md);
 }
 
-/* Card con hover effect (Adaptado a Dark Mode) */
+/* Card con hover effect (Dark Mode) */
 .card-hover {
   transition: all var(--transition-medium);
   background-color: var(--gray-100);
@@ -138,7 +140,7 @@ html { scroll-behavior: smooth; }
 .card-hover:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-xl);
-  border-color: var(--primary-color); /* Borde azul al hacer hover */
+  border-color: var(--primary-color); /* Borde azul al hover */
 }
 
 /* Botón con efecto ripple */
@@ -178,7 +180,7 @@ html { scroll-behavior: smooth; }
 }
 
 /* ========================================
-   NUEVO: ESTILOS DEL FOOTER 3D
+   NUEVO: ESTILOS DEL FOOTER 3D (Para usar en Footer.jsx)
    ======================================== */
 
 /* Contenedor del Robot */
@@ -190,7 +192,7 @@ html { scroll-behavior: smooth; }
   z-index: 10;
   width: 160px;
   animation: float 4s ease-in-out infinite;
-  pointer-events: none; /* Permite clicks a través si es necesario */
+  pointer-events: none;
 }
 
 /* Imagen del robot */
@@ -198,7 +200,7 @@ html { scroll-behavior: smooth; }
   width: 100%;
   height: auto;
   display: block;
-  filter: drop-shadow(0px 10px 20px rgba(59, 130, 246, 0.3));
+  filter: drop-shadow(0px 10px 20px rgba(59, 130, 246, 0.3)); /* Sombra azul */
 }
 
 /* Burbuja de diálogo */
