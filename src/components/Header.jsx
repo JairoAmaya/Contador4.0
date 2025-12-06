@@ -21,7 +21,7 @@ const Header = ({ totalPrompts, filteredCount, categoryCount }) => {
           </div>
 
           <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-            Sistema de transformación con IA para contadores. Accede a una librería de <strong className="text-slate-200">prompts de alta ingeniería</strong> diseñados para automatizar tu día a día.
+            Sistema de transformación con IA para contadores. Accede a tu librería de 115 <strong className="text-slate-200">prompts especializados del e.book</strong> diseñados para automatizar tu día a día.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
