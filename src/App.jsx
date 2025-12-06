@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Check, Zap, Database, Layers } from 'lucide-react';
+import { ChevronDown, ChevronRight, Check, Layers } from 'lucide-react'; // <-- CORREGIDO: Eliminados Zap y Database
 
 // Importar componentes
 import Header from './components/Header';
