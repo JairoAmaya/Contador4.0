@@ -1,285 +1,185 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { X, Copy, ExternalLink, Check, RotateCcw } from 'lucide-react'; 
-// Importamos las utilidades necesarias
-import { highlightPlaceholders, countPlaceholders, extractPlaceholders } from '../utils/highlightPlaceholders'; 
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Copy, Check, Clock, Info, ExternalLink } from 'lucide-react';
 
-/**
- * Modal de vista detallada de prompt
- * @param {function} onCopySuccess - Callback para notificar que el copiado fue exitoso.
- * @param {function} onClose - Callback para cerrar el modal
- * @param {Object} promptData - Datos del prompt
- */
 const PromptDetailModal = ({ promptData, onClose, onCopySuccess }) => {
-  const { categoryTitle, subcategoryTitle, promptItem } = promptData;
-  const [copied, setCopied] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [variables, setVariables] = useState({});
+  const [isCopied, setIsCopied] = useState(false);
 
-  // Lógica de Variables: Extraer variables y crear estado de reemplazo
-  const initialPlaceholders = extractPlaceholders(promptItem.prompt);
-  const [replacements, setReplacements] = useState(() => {
-    const initialState = {};
-    initialPlaceholders.forEach(ph => {
-      initialState[ph] = `[${ph}]`;
-    });
-    return initialState;
-  });
-  
-  const hasPlaceholders = initialPlaceholders.length > 0;
-
-  // Animación de entrada
+  // 1. DETECCIÓN INTELIGENTE DE VARIABLES
+  // Busca todo lo que esté entre corchetes [...] y crea un campo para ello
   useEffect(() => {
-    setTimeout(() => setIsVisible(true), 10);
-  }, []);
-
-  // Función para obtener el prompt final con las sustituciones del usuario
-  const getFinalPrompt = () => {
-    let finalPrompt = promptItem.prompt;
-    if (hasPlaceholders) {
-      initialPlaceholders.forEach(ph => {
-        const value = replacements[ph] || `[${ph}]`;
-        // Nota: El valor de reemplazo debe ser el valor del input, no el valor original [ph]
-        // Si el usuario deja el campo vacío, se mantiene el valor por defecto: [ph]
-        finalPrompt = finalPrompt.replace(new RegExp(`\\[${ph}\\]`, 'g'), value);
+    const regex = /\[(.*?)\]/g;
+    const found = promptData.prompt.match(regex);
+    if (found) {
+      const initialVars = {};
+      // Eliminamos corchetes y duplicados para crear el estado inicial
+      [...new Set(found)].forEach(v => {
+        const key = v.replace('[', '').replace(']', '');
+        initialVars[key] = '';
       });
+      setVariables(initialVars);
+    } else {
+      setVariables({});
     }
-    return finalPrompt;
-  };
-  
-  // Manejador de cambio en los campos de reemplazo
-  const handleReplacementChange = (placeholder, value) => {
-    setReplacements(prev => ({
-      ...prev,
-      [placeholder]: value
-    }));
-  };
+  }, [promptData]);
 
-  // Restablecer todos los campos a los valores iniciales [VARIABLE]
-  const handleResetReplacements = () => {
-    const initialState = {};
-    initialPlaceholders.forEach(ph => {
-      initialState[ph] = `[${ph}]`;
+  // 2. GENERADOR DE PROMPT FINAL
+  // Reemplaza los placeholders con lo que escribe el usuario
+  const finalPrompt = useMemo(() => {
+    let text = promptData.prompt;
+    Object.keys(variables).forEach(key => {
+      const value = variables[key];
+      // Si el usuario escribió algo, úsalo. Si no, deja el placeholder original para que sepa qué falta.
+      if (value && value.trim() !== '') {
+        // Reemplaza todas las ocurrencias de esa variable
+        text = text.split(`[${key}]`).join(value);
+      }
     });
-    setReplacements(initialState);
+    return text;
+  }, [promptData, variables]);
+
+  // Manejador de inputs
+  const handleInputChange = (key, value) => {
+    setVariables(prev => ({ ...prev, [key]: value }));
   };
 
-  // Función para copiar al portapapeles
-  const handleCopyPrompt = async () => {
-    const finalPrompt = getFinalPrompt(); // Obtener el prompt con las sustituciones
+  // Copiar al portapapeles
+  const handleCopy = () => {
+    navigator.clipboard.writeText(finalPrompt);
+    setIsCopied(true);
+    if (onCopySuccess) onCopySuccess();
     
-    try {
-      await navigator.clipboard.writeText(finalPrompt);
-      
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      
-      if (onCopySuccess) {
-          onCopySuccess();
-      }
-
-    } catch (err) {
-      // Fallback
-      const el = document.createElement('textarea');
-      el.value = finalPrompt;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      
-      if (onCopySuccess) {
-          onCopySuccess();
-      }
-    }
+    setTimeout(() => setIsCopied(false), 2000);
   };
-
-  // FUNCIÓN: Maneja la acción de abrir la plataforma (Copia y Abre)
-  const handleExecutePrompt = async (platformBaseUrl, event) => {
-      // 1. Evitar que el navegador abra el enlace inmediatamente (para forzar la copia)
-      event.preventDefault(); 
-      
-      // 2. Obtener el prompt final del estado actual
-      const finalPrompt = getFinalPrompt();
-      
-      // 3. COPIAR EL PROMPT (Llama a la función que ya funciona, para el Toast)
-      await handleCopyPrompt(); 
-      
-      // 4. Abrir la URL con el prompt final codificado
-      const finalUrl = `${platformBaseUrl}${encodeURIComponent(finalPrompt)}`;
-      window.open(finalUrl, '_blank', 'noopener,noreferrer');
-  };
-
-
-  // Función para cerrar con animación
-  const handleClose = useCallback(() => {
-    setIsVisible(false);
-    setTimeout(onClose, 300);
-  }, [onClose]);
-
-  // Cerrar con tecla ESC
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') handleClose();
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [handleClose]);
-
-  // Resto de datos
-  const navigationPath = `${categoryTitle} > ${subcategoryTitle}`;
-  const variableCount = countPlaceholders(promptItem.prompt);
 
   return (
-    <div 
-      className={`fixed inset-0 bg-gray-900 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${isVisible ? 'bg-opacity-75' : 'bg-opacity-0'}`}
-      onClick={handleClose}
-    >
+    // OVERLAY (Fondo oscuro con desenfoque)
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       <div 
-        className={`bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="p-8">
+        className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" 
+        onClick={onClose}
+      ></div>
+
+      {/* CARD DEL MODAL */}
+      <div className="relative w-full max-w-3xl bg-[#0f172a] rounded-2xl shadow-2xl border border-slate-700 flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200">
+        
+        {/* --- HEADER --- */}
+        <div className="flex items-start justify-between p-6 border-b border-slate-800 bg-[#1e293b]">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+               {/* Badge de Categoría */}
+               <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-900/30 text-blue-400 border border-blue-500/20">
+                 {promptData.categoryTitle || "Prompt"}
+               </span>
+               {/* Tiempo Estimado */}
+               {promptData.tiempoEstimado && (
+                 <span className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700">
+                   <Clock size={12} /> {promptData.tiempoEstimado}
+                 </span>
+               )}
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight">
+              {promptData.title}
+            </h2>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* --- BODY (Scrollable) --- */}
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           
-          {/* Header con navegación y botón cerrar */}
-          <div className="flex justify-between items-start mb-6 border-b pb-4 border-gray-100">
-            <div className="flex-1">
-              <p className="text-sm font-light text-gray-500 mb-1" style={{ fontFamily: 'Lato, sans-serif' }}>
-                {navigationPath}
-              </p>
-              <h2 className="text-3xl font-extrabold text-gray-800" style={{ color: '#E45826' }}>
-                {promptItem.title}
-              </h2>
-              
-              {/* Badge con contador de variables */}
-              {variableCount > 0 && (
-                <div className="mt-3 inline-flex items-center px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">
-                  {variableCount} {variableCount === 1 ? 'variable' : 'variables'} para personalizar
-                </div>
-              )}
-            </div>
-            
-            <button 
-              onClick={handleClose} 
-              className="text-gray-400 hover:text-gray-700 transition duration-150 p-2 focus:outline-none ml-4"
-              aria-label="Cerrar modal"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* NUEVA SECCIÓN: FORMULARIO DE REEMPLAZO DE VARIABLES */}
-          {hasPlaceholders && (
-              <div className="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
-                  <div className="flex justify-between items-center mb-4 border-b pb-3 border-blue-200">
-                    <h3 className="text-lg font-bold text-blue-800">✍️ Personalizar Variables ({initialPlaceholders.length})</h3>
-                    <button 
-                        onClick={handleResetReplacements}
-                        className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition duration-150"
-                        title="Restablecer valores originales"
-                    >
-                        <RotateCcw className="w-4 h-4 mr-1" />
-                        Reset
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {initialPlaceholders.map(ph => (
-                          <div key={ph} className="flex flex-col">
-                              <label className="text-xs font-semibold text-gray-600 mb-1 block">
-                                  {ph.toUpperCase()}
-                              </label>
-                              <input
-                                  type="text"
-                                  value={replacements[ph] || ''}
-                                  onChange={(e) => handleReplacementChange(ph, e.target.value)}
-                                  placeholder={`Ingresa el valor para [${ph}]`}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                              />
-                          </div>
-                      ))}
-                  </div>
+          {/* SECCIÓN 1: VARIABLES (Si existen) */}
+          {Object.keys(variables).length > 0 && (
+            <div className="mb-8 p-5 rounded-xl bg-blue-900/10 border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-4 text-blue-400">
+                <Info size={18} />
+                <h3 className="font-bold text-sm uppercase tracking-wide">Personaliza tu Prompt</h3>
               </div>
-          )}
-          {/* FIN: FORMULARIO DE REEMPLAZO DE VARIABLES */}
-
-
-          {/* Contenido del Prompt (Ahora muestra el prompt original sin sustituir) */}
-          <div className="mb-8">
-            <p className="text-lg font-semibold text-gray-700 mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Contenido del Prompt Original:
-            </p>
-            <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-inner">
-              <pre className="text-base text-gray-800 whitespace-pre-wrap leading-relaxed" style={{ fontFamily: 'Lato, sans-serif' }}>
-                {highlightPlaceholders(promptItem.prompt)} 
-              </pre>
-            </div>
-          </div>
-
-          {/* Instrucciones rápidas */}
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="text-sm font-bold text-blue-800 mb-2">📝 Instrucciones de Copiado:</h4>
-            <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-              {hasPlaceholders ? (
-                <>
-                  <li>Completa los campos de **"Personalizar Variables"** arriba.</li>
-                  <li>Al copiar, el prompt incluirá automáticamente tus sustituciones.</li>
-                </>
-              ) : (
-                <li>Este prompt es de uso inmediato. Cópialo directamente.</li>
-              )}
               
-              <li>Copia el prompt completo o úsalo directamente en Claude/ChatGPT.</li>
-            </ul>
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {Object.keys(variables).map(key => (
+                  <div key={key}>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1.5 ml-1">
+                      {key}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={`Ej: ${key}...`}
+                      value={variables[key]}
+                      onChange={(e) => handleInputChange(key, e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-slate-600"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-          {/* Botones de Acción */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          {/* SECCIÓN 2: EL PROMPT FINAL */}
+          <div>
+            <div className="flex justify-between items-end mb-3">
+              <h3 className="font-bold text-slate-200 text-sm uppercase tracking-wide flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                Resultado Final
+              </h3>
+              <span className="text-xs text-slate-500">Listo para copiar</span>
+            </div>
             
-            {/* Botón Copiar */}
-            <button 
-              onClick={handleCopyPrompt}
-              className={`flex items-center justify-center px-6 py-3 text-white font-bold rounded-xl transition-all duration-300 shadow-lg ${
-                copied 
-                  ? 'bg-green-500 hover:bg-green-600' 
-                  : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {copied ? (
-                <>
-                  <Check className="w-5 h-5 mr-2" /> ¡Copiado!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-5 h-5 mr-2" /> Copiar Prompt Final
-                </>
-              )}
-            </button>
-            
-            {/* Botones de Ejecución (CORREGIDOS: DE <a> A <button>) */}
-            <button
-              onClick={(e) => handleExecutePrompt('https://claude.ai/new?q=', e)} // Llama a la nueva función
-              className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
-            >
-              <ExternalLink className="w-5 h-5 mr-2" /> Usar en Claude
-            </button>
-
-            <button
-              onClick={(e) => handleExecutePrompt('https://chat.openai.com/?q=', e)} // Llama a la nueva función
-              className="flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition duration-300 shadow-lg"
-            >
-              <ExternalLink className="w-5 h-5 mr-2" /> Usar en ChatGPT
-            </button>
-          </div>
-
-          {/* Footer del modal con tips */}
-          <div className="mt-6 pt-4 border-t border-gray-200 text-center">
-            <p className="text-xs text-gray-500">
-              💡 <strong>Tip Pro:</strong> Puedes combinar múltiples prompts para análisis más complejos
-            </p>
+            <div className="relative group">
+              <textarea
+                readOnly
+                value={finalPrompt}
+                className="w-full h-64 bg-[#020617] border border-slate-800 rounded-xl p-5 text-slate-300 font-mono text-sm leading-relaxed resize-none focus:outline-none focus:border-slate-600 custom-scrollbar"
+              />
+              {/* Botón flotante de copiar (Visible en Desktop) */}
+              <button
+                onClick={handleCopy}
+                className="absolute top-4 right-4 p-2 bg-slate-800/80 backdrop-blur hover:bg-blue-600 text-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hidden sm:block"
+                title="Copiar texto"
+              >
+                {isCopied ? <Check size={18} /> : <Copy size={18} />}
+              </button>
+            </div>
           </div>
 
         </div>
+
+        {/* --- FOOTER DEL MODAL --- */}
+        <div className="p-6 border-t border-slate-800 bg-[#1e293b] flex flex-col sm:flex-row gap-4 justify-between items-center">
+          
+          {/* Enlaces a IAs */}
+          <div className="flex gap-3 w-full sm:w-auto order-2 sm:order-1">
+            <a href="https://chat.openai.com" target="_blank" rel="noreferrer" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors border border-slate-700">
+              ChatGPT <ExternalLink size={12} />
+            </a>
+            <a href="https://claude.ai" target="_blank" rel="noreferrer" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors border border-slate-700">
+              Claude <ExternalLink size={12} />
+            </a>
+          </div>
+
+          {/* Botón Principal de Copiar */}
+          <button
+            onClick={handleCopy}
+            className={`w-full sm:w-auto order-1 sm:order-2 flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all transform active:scale-95 ${
+              isCopied 
+                ? 'bg-green-600 hover:bg-green-700 ring-2 ring-green-500/50' 
+                : 'bg-blue-600 hover:bg-blue-500 ring-2 ring-blue-500/30 hover:ring-blue-400/50'
+            }`}
+          >
+            {isCopied ? (
+              <> <Check size={20} /> ¡Copiado! </>
+            ) : (
+              <> <Copy size={20} /> Copiar Prompt </>
+            )}
+          </button>
+
+        </div>
+
       </div>
     </div>
   );
