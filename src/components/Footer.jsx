@@ -1,4 +1,7 @@
 import React from 'react';
+// 1. IMPORTAMOS LA IMAGEN DIRECTAMENTE
+// Esto busca el archivo 'robot.png' en la carpeta 'src' (un nivel arriba de components)
+import robotImage from '../robot.png'; 
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -18,7 +21,7 @@ const Footer = () => {
 
       <div className="relative mt-48 border-t border-slate-800 bg-[#0f172a]">
 
-        {/* CONTENEDOR DEL PERSONAJE */}
+        {/* Contenedor Flotante */}
         <div 
           className="absolute -top-[130px] left-1/2 z-10 w-40 animate-float-character"
           style={{ transform: 'translateX(-50%)' }}
@@ -29,19 +32,18 @@ const Footer = () => {
                 <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white"></div>
             </div>
 
-            {/* IMAGEN (Asegúrate de que se llame robot.png en public/) */}
+            {/* 2. USAMOS LA VARIABLE IMPORTADA */}
             <img 
-              src="/robot.png" 
-              alt="Asistente Contador" 
+              src={robotImage} 
+              alt="Asistente Contador 4.0" 
               className="w-full h-auto drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]"
-              style={{ display: 'block' }}
             />
         </div>
 
         {/* Línea Neón */}
         <div className="h-1 w-full relative z-0 bg-gradient-to-r from-[#0f172a] via-[#3b82f6] to-[#0f172a] shadow-[0_0_25px_rgba(59,130,246,0.5)]"></div>
 
-        {/* Contenido del Footer */}
+        {/* Contenido */}
         <div className="container mx-auto max-w-4xl px-4 pt-24 pb-12 text-center">
           
           <div className="mb-5">
@@ -58,7 +60,7 @@ const Footer = () => {
             Es un complemento digital del E-Book <span className="text-white font-semibold">"Contador 4.0: Sistema de Transformación con IA"</span> que incluye prompts especializados para contadores.
           </p>
 
-          <div className="bg-[#1e293b]/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 max-w-lg mx-auto mb-10 shadow-lg hover:border-blue-500/30 transition-colors group">
+          <div className="bg-[#1e293b]/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 max-w-lg mx-auto mb-10 shadow-lg group">
             <p className="text-sm text-slate-300 m-0">
               Herramienta de productividad diseñada por <br />
               <a 
