@@ -1,62 +1,69 @@
 import React from 'react';
-import { BarChart2 } from 'lucide-react'; // Mantenemos BarChart2 para el badge filtrado
+import { Zap, Layers, Database } from 'lucide-react';
 
-/**
- * Componente Header
- * Muestra título, descripción y estadísticas de la app
- * * @param {number} totalPrompts - Total de prompts disponibles
- * @param {number} filteredCount - Prompts visibles después de filtrar (opcional)
- */
-const Header = ({ totalPrompts = 105, filteredCount = null }) => {
-  // Las categorías se asumen como 7 
-  const numCategories = 7;
-  const isFiltered = filteredCount !== null && filteredCount !== totalPrompts;
-
+const Header = ({ totalPrompts, filteredCount }) => {
   return (
-    // Contenedor principal: Fondo Índigo corporativo, padding amplio y esquinas redondeadas
-    <header className="max-w-4xl mx-auto mb-8 p-6 sm:p-8 bg-indigo-700 text-white rounded-2xl shadow-xl">
+    <header className="mb-10 relative">
       
-      {/* TÍTULO IMPACTANTE (Más grande y en blanco) */}
-      <div className="flex items-start justify-between">
-        <h1 className="text-4xl md:text-5xl font-extrabold font-display text-white"> 
-          Contador 4.0 Express
-        </h1>
+      {/* 1. TARJETA PRINCIPAL DEL HEADER */}
+      <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] rounded-3xl border border-slate-700 shadow-2xl overflow-hidden relative">
+        
+        {/* Efecto de luz ambiental (Glow) en la esquina */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
-        {/* Badge de versión */}
-        <div className="inline-flex items-center px-3 py-1 bg-indigo-600 text-indigo-100 rounded-full shadow-sm">
-          <span className="text-xs font-semibold">v2.0</span>
+        <div className="relative z-10 px-6 py-10 sm:p-12 text-center">
+          
+          {/* TÍTULO Y VERSIÓN */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-4">
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+              Contador 4.0 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Express</span>
+            </h1>
+            
+            {/* Badge de Versión */}
+            <span className="px-3 py-1 rounded-full bg-blue-900/30 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+              v2.0
+            </span>
+          </div>
+
+          {/* DESCRIPCIÓN */}
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+            Sistema de transformación con IA para contadores. Accede a una librería de <strong className="text-slate-200">prompts de alta ingeniería</strong> diseñados para automatizar tu día a día.
+          </p>
+
+          {/* ESTADÍSTICAS (Pills/Badges) */}
+          <div className="flex flex-wrap justify-center gap-4">
+            
+            {/* Pill 1: Total Prompts */}
+            <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#020617] border border-slate-700/50 text-slate-300 shadow-inner">
+              <Database size={18} className="text-blue-500" />
+              <span className="font-medium">
+                {filteredCount !== null 
+                  ? <span className="text-white">{filteredCount} resultados</span>
+                  : <>Total: <span className="text-white font-bold">{totalPrompts}</span> prompts</>
+                }
+              </span>
+            </div>
+
+            {/* Pill 2: Categorías */}
+            <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#020617] border border-slate-700/50 text-slate-300 shadow-inner">
+              <Layers size={18} className="text-yellow-500" />
+              <span className="font-medium">Áreas: <span className="text-white font-bold">7 categorías</span></span>
+            </div>
+
+            {/* Pill 3: Potencia (Decorativo) */}
+            <div className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#020617] border border-slate-700/50 text-slate-300 shadow-inner">
+              <Zap size={18} className="text-orange-500" />
+              <span className="font-medium">Powered by <span className="text-white font-bold">AI</span></span>
+            </div>
+
+          </div>
+
         </div>
       </div>
+      
+      {/* Sombra de neón debajo del header para integrarlo con el fondo */}
+      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-[90%] h-4 bg-blue-500/20 blur-xl rounded-[100%] pointer-events-none"></div>
 
-      {/* SUBTÍTULO / DESCRIPCIÓN (Texto actualizado) */}
-      <p className="mt-3 text-indigo-100 text-base leading-relaxed max-w-3xl">
-        Sistema de transformación con IA para contadores, que incluye más de **{totalPrompts} prompts especializados** listos para usar.
-      </p>
-
-      {/* SECCIÓN DE ESTADÍSTICAS */}
-      <div className="mt-6 pt-4 border-t border-indigo-600 flex flex-wrap gap-3 text-sm font-medium">
-        
-        {/* Total de prompts */}
-        <span className="inline-flex items-center px-4 py-1.5 bg-indigo-600 rounded-full shadow-md">
-          <span className="text-indigo-100 mr-2">Total:</span> 
-          <strong className="text-white">{totalPrompts} prompts</strong>
-        </span>
-
-        {/* Categorías */}
-        <span className="inline-flex items-center px-4 py-1.5 bg-indigo-600 rounded-full shadow-md">
-          <span className="text-indigo-100 mr-2">Áreas:</span> 
-          <strong className="text-white">{numCategories} categorías</strong>
-        </span>
-        
-        {/* Resultados filtrados (Fondo naranja para destacar) */}
-        {isFiltered && (
-          <span className="inline-flex items-center px-4 py-1.5 bg-orange-500 rounded-full shadow-md transition duration-300 animate-pulse">
-            <BarChart2 className="w-4 h-4 mr-1 text-white" />
-            <strong className="text-white">{filteredCount} resultados</strong>
-          </span>
-        )}
-        
-      </div>
     </header>
   );
 };
