@@ -50,7 +50,7 @@ const Footer = () => {
           
           <div className="mb-4">
             <span className="inline-block px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-blue-400 bg-blue-900/30 border border-blue-500/30 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.2)]">
-                v2.0.0
+                v2.0
             </span>
           </div>
 
@@ -59,7 +59,7 @@ const Footer = () => {
           </h3>
           
           <p className="text-slate-400 text-sm leading-relaxed max-w-xl mx-auto mb-8">
-            Es un complemento digital del E-Book <span className="text-white font-semibold">"Contador 4.0: Sistema de Transformación con IA"</span> que incluye prompts especializados para contadores.
+            Es un complemento digital del e.book <span className="text-white font-semibold">"Contador 4.0: Sistema de Transformación con IA"</span> que incluye 115 prompts especializados para contadores.
           </p>
 
           <div className="bg-[#1e293b] border border-slate-700 rounded-2xl p-6 max-w-lg mx-auto mb-8 shadow-lg relative overflow-hidden group">
