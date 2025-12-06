@@ -1,11 +1,11 @@
 import React from 'react';
 
-/**
- * Footer Híbrido: Diseño Nuevo (Robot/Dark) + Contenido Completo Original
- * CORRECCIÓN: Elimina la importación fallida y usa ruta absoluta.
- */
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+
+  // TRUCO: Usamos la imagen de tu servidor Master que sabemos que funciona.
+  // Si falla la local, usará esta.
+  const characterUrl = "https://contador4-0-master.vercel.app/personaje-contador.png";
 
   return (
     <div className="w-full overflow-x-hidden font-sans">
@@ -21,7 +21,6 @@ const Footer = () => {
         }
       `}</style>
 
-      {/* --- 1. CABECERA DEL FOOTER (ROBOT + NEÓN) --- */}
       <div className="relative mt-48 border-t border-slate-800 bg-[#0f172a]">
 
         {/* Robot Flotante */}
@@ -35,30 +34,26 @@ const Footer = () => {
                 <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white"></div>
             </div>
 
-            {/* IMAGEN */}
-            {/* Usamos ruta absoluta a /public. Asegúrate de que el archivo se llame robot.png */}
+            {/* IMAGEN: Usa la URL absoluta de tu otra app */}
             <img 
-              src="/robot.png" 
+              src={characterUrl}
               alt="Asistente Contador 4.0" 
-              className="w-full h-auto drop-shadow-[0_0_25px_rgba(59,130,246,0.6)]"
+              className="w-full h-auto drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]"
             />
         </div>
 
         {/* Línea Neón */}
-        <div className="h-1 w-full relative z-0 bg-gradient-to-r from-[#0f172a] via-[#3b82f6] to-[#0f172a] shadow-[0_0_20px_rgba(59,130,246,0.5)]"></div>
+        <div className="h-1 w-full relative z-0 bg-gradient-to-r from-[#0f172a] via-[#3b82f6] to-[#0f172a] shadow-[0_0_25px_rgba(59,130,246,0.5)]"></div>
 
-
-        {/* --- 2. CONTENIDO DEL FOOTER --- */}
+        {/* Contenido */}
         <div className="container mx-auto max-w-4xl px-4 pt-24 pb-12 text-center">
           
-          {/* Badge de Versión */}
           <div className="mb-4">
             <span className="inline-block px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-blue-400 bg-blue-900/30 border border-blue-500/30 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.2)]">
                 v2.0.0
             </span>
           </div>
 
-          {/* Título y Descripción */}
           <h3 className="text-xl font-bold text-white mb-2 tracking-wide">
             Contador 4.0 Express
           </h3>
@@ -67,10 +62,8 @@ const Footer = () => {
             Es un complemento digital del E-Book <span className="text-white font-semibold">"Contador 4.0: Sistema de Transformación con IA"</span> que incluye prompts especializados para contadores.
           </p>
 
-          {/* Caja de Autor */}
           <div className="bg-[#1e293b] border border-slate-700 rounded-2xl p-6 max-w-lg mx-auto mb-8 shadow-lg relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-            
             <p className="text-sm text-slate-300 m-0">
               Herramienta de productividad diseñada por <br />
               <a 
@@ -84,10 +77,8 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Divisor */}
           <hr className="border-t border-slate-800 w-1/3 mx-auto mb-6" />
 
-          {/* Enlaces */}
           <div className="flex flex-wrap justify-center gap-6 text-xs font-medium text-slate-500 mb-6 uppercase tracking-wider">
              <a href="https://jairoamaya.co" target="_blank" rel="noopener noreferrer" className="hover:text-[#3b82f6] transition-colors flex items-center gap-1">
                 Sitio Web
@@ -102,7 +93,6 @@ const Footer = () => {
              </a>
           </div>
 
-          {/* Copyright */}
           <p className="text-[10px] text-slate-600">
             Todos los derechos reservados &copy; {currentYear} Jairo Amaya.
           </p>
