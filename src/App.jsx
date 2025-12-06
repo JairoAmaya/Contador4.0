@@ -14,17 +14,14 @@ import useSearch from './hooks/useSearch';
 import { countPrompts } from './utils/filterPrompts';
 
 /**
- * Componente Principal - CONTADOR 4.0 EXPRESS (v3.0)
- * Incluye: Grid Dark Mode + Buscador + SISTEMA DE FAVORITOS
+ * Componente Principal - CONTADOR 4.0 EXPRESS (v3.1 - Fix Favoritos)
  */
 const App = () => {
   const [selectedPrompt, setSelectedPrompt] = useState(null);
   const [toastVisible, setToastVisible] = useState(false);
   
-  // ESTADO NUEVO: Vista actual ('all' o 'favorites')
   const [viewMode, setViewMode] = useState('all'); 
   
-  // ESTADO NUEVO: Lista de IDs favoritos (con carga inicial desde localStorage)
   const [favorites, setFavorites] = useState(() => {
     try {
       const saved = localStorage.getItem('contador_favorites');
@@ -44,7 +41,6 @@ const App = () => {
     filteredCount
   } = useSearch(promptsData);
 
-  // Guardar en LocalStorage cada vez que cambian los favoritos
   useEffect(() => {
     localStorage.setItem('contador_favorites', JSON.stringify(favorites));
   }, [favorites]);
@@ -52,34 +48,35 @@ const App = () => {
   const totalPrompts = countPrompts(promptsData);
   const categoryCount = promptsData.length;
 
-  // Lógica para alternar favorito
   const toggleFavorite = (e, promptId) => {
-    e.stopPropagation(); // Evita que se abra el modal al dar click en la estrella
+    e.stopPropagation(); 
     setFavorites(prev => 
       prev.includes(promptId) 
-        ? prev.filter(id => id !== promptId) // Quitar
-        : [...prev, promptId] // Agregar
+        ? prev.filter(id => id !== promptId) 
+        : [...prev, promptId] 
     );
   };
 
-  // Lógica de Filtrado para la vista "Mis Favoritos"
+  // --- LÓGICA DE FILTRADO DE FAVORITOS MEJORADA ---
   const contentToDisplay = useMemo(() => {
     if (viewMode === 'all') return displayedPrompts;
 
-    // Si estamos en modo favoritos, filtramos la estructura
     return displayedPrompts.map(category => {
       const filteredSubcategories = category.subcategories.map(sub => ({
         ...sub,
-        prompts: sub.prompts.filter(p => favorites.includes(p.id))
+        // Aquí también generamos el ID seguro para comparar
+        prompts: sub.prompts.filter(p => {
+          const safeId = p.id || p.title; // ID o Título como respaldo
+          return favorites.includes(safeId);
+        })
       })).filter(sub => sub.prompts.length > 0);
 
       if (filteredSubcategories.length > 0) {
         return { ...category, subcategories: filteredSubcategories };
       }
       return null;
-    }).filter(Boolean); // Elimina categorías vacías
+    }).filter(Boolean); 
   }, [displayedPrompts, viewMode, favorites]);
-
 
   const handlePromptClick = (categoryTitle, subcategoryTitle, promptItem) => {
     setSelectedPrompt({ 
@@ -98,9 +95,7 @@ const App = () => {
 
   const getIcon = (key) => {
     const isExpanded = collapsedState[key];
-    // Si estamos buscando o en modo favoritos, expandimos visualmente o mostramos fijo
     if (searchText || viewMode === 'favorites') return <ChevronDown className="w-4 h-4 text-slate-500" />;
-    
     return isExpanded 
       ? <ChevronDown className="w-4 h-4 text-blue-400 transform transition-transform duration-300" /> 
       : <ChevronRight className="w-4 h-4 text-slate-500 transform transition-transform duration-300" />;
@@ -115,7 +110,6 @@ const App = () => {
         categoryCount={categoryCount}
       />
 
-      {/* --- SWITCHER DE VISTAS (NUEVO) --- */}
       <div className="flex justify-center mb-8">
         <div className="bg-[#1e293b] p-1 rounded-xl border border-slate-700 flex shadow-lg">
           <button
@@ -148,17 +142,14 @@ const App = () => {
         onClear={handleClearSearch}
       />
 
-      {/* Tips Section (Solo visible en 'all' y sin búsqueda) */}
       {!searchText && viewMode === 'all' && (
         <div className="mt-12">
            <TipsSection />
         </div>
       )}
 
-      {/* --- CONTENIDO PRINCIPAL --- */}
       <main className="max-w-7xl mx-auto mt-10 min-h-[400px]">
         
-        {/* Mensaje: Sin resultados */}
         {contentToDisplay.length === 0 && (
           <div className="text-center p-16 bg-[#1e293b] rounded-2xl shadow-xl border border-slate-700 max-w-2xl mx-auto flex flex-col items-center">
             {viewMode === 'favorites' ? (
@@ -183,12 +174,10 @@ const App = () => {
           </div>
         )}
 
-        {/* GRID DE TARJETAS */}
         {contentToDisplay.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {contentToDisplay.map(category => {
-              // En modo favoritos, siempre expandido. En modo normal, depende del acordeón.
               const categoryExpanded = viewMode === 'favorites' || collapsedState[category.title] === true || searchText; 
               
               return (
@@ -199,7 +188,6 @@ const App = () => {
                   
                   <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 to-cyan-400"></div>
 
-                  {/* Header de la Tarjeta */}
                   <button
                     className="w-full text-left p-5 flex flex-col gap-3 transition duration-150 group"
                     onClick={() => toggleCollapse(category.title)}
@@ -221,7 +209,6 @@ const App = () => {
                     </div>
                   </button>
                   
-                  {/* Contenido Expandible */}
                   <div 
                     className={`transition-all duration-300 ease-in-out overflow-hidden ${
                         categoryExpanded ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'
@@ -235,7 +222,6 @@ const App = () => {
                         return (
                           <div key={subcategory.title} className="mt-4 first:mt-4">
                             
-                            {/* Título Subcategoría */}
                             <button
                               className="w-full text-left py-2 flex items-center justify-between group/sub"
                               onClick={() => toggleCollapse(subcategory.title)}
@@ -248,18 +234,20 @@ const App = () => {
                               </div>
                             </button>
                             
-                            {/* Lista de Prompts */}
                             <div 
                                 className={`pl-3 border-l-2 border-slate-700 space-y-2 mt-1 overflow-hidden transition-all duration-300 ${
                                     subcategoryExpanded ? 'max-h-[2000px] py-2' : 'max-h-0'
                                 }`}
                             >
                                 {subcategory.prompts.map(promptItem => {
-                                  const isFav = favorites.includes(promptItem.id);
+                                  // ✅ SOLUCIÓN: ID SEGURO
+                                  // Si no hay ID, usamos el título. Esto garantiza unicidad.
+                                  const safeId = promptItem.id || promptItem.title;
+                                  const isFav = favorites.includes(safeId);
 
                                   return (
                                     <button
-                                      key={promptItem.id || promptItem.title}
+                                      key={safeId}
                                       onClick={() => handlePromptClick(category.title, subcategory.title, promptItem)}
                                       className={`w-full text-left p-3 rounded-lg border transition-all duration-200 group/prompt relative ${
                                         isFav 
@@ -272,9 +260,9 @@ const App = () => {
                                           {promptItem.title}
                                         </span>
                                         
-                                        {/* Botón Estrella (Favorito) */}
+                                        {/* Botón Estrella (Usa el ID Seguro) */}
                                         <div 
-                                          onClick={(e) => toggleFavorite(e, promptItem.id)}
+                                          onClick={(e) => toggleFavorite(e, safeId)}
                                           className={`p-1.5 rounded-md transition-all z-10 shrink-0 ${
                                             isFav 
                                               ? 'text-yellow-400 hover:bg-yellow-500/20' 
@@ -303,7 +291,6 @@ const App = () => {
 
       <Footer />
 
-      {/* Modal */}
       {selectedPrompt && (
         <PromptDetailModal 
           promptData={selectedPrompt} 
@@ -312,7 +299,6 @@ const App = () => {
         />
       )}
 
-      {/* Toast */}
       <div className={`fixed bottom-5 right-5 bg-blue-600 text-white px-5 py-3 rounded-lg shadow-2xl shadow-blue-500/20 transition-all duration-300 z-50 flex items-center gap-2 border border-blue-400 ${toastVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
           <Check className="w-5 h-5 text-white" />
           <span className="font-bold">¡Acción completada!</span>
