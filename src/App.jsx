@@ -12,10 +12,6 @@ import promptsData from './data/promptsData';
 import useSearch from './hooks/useSearch';
 import { countPrompts } from './utils/filterPrompts';
 
-/**
- * Componente Principal - CONTADOR 4.0 EXPRESS
- * Versión: Dark Mode + Grid Layout + Dynamic Header
- */
 const App = () => {
   const [selectedPrompt, setSelectedPrompt] = useState(null);
   const [toastVisible, setToastVisible] = useState(false); 
@@ -30,12 +26,20 @@ const App = () => {
     filteredCount
   } = useSearch(promptsData);
 
-  // Cálculos dinámicos para el Header
   const totalPrompts = countPrompts(promptsData);
-  const categoryCount = promptsData.length; // Cuenta las categorías reales (8)
+  const categoryCount = promptsData.length; 
 
+  // ✅ CORRECCIÓN CRÍTICA: Aquí estaba el error
   const handlePromptClick = (categoryTitle, subcategoryTitle, promptItem) => {
-    setSelectedPrompt({ categoryTitle, subcategoryTitle, promptItem });
+    // Antes: setSelectedPrompt({ categoryTitle, subcategoryTitle, promptItem }); // Esto anidaba los datos y rompía el modal
+    
+    // Ahora: Usamos "...promptItem" para "desempaquetar" los datos (title, prompt, tiempoEstimado)
+    // y ponerlos en el nivel principal. Así el Modal los encuentra inmediatamente.
+    setSelectedPrompt({ 
+      ...promptItem, 
+      categoryTitle, 
+      subcategoryTitle 
+    });
   };
 
   const handleCopySuccess = () => {
@@ -45,7 +49,6 @@ const App = () => {
     }, 2500);
   };
 
-  // Iconos ajustados para fondo oscuro
   const getIcon = (key) => {
     const isExpanded = collapsedState[key];
     if (searchText) return <ChevronDown className="w-4 h-4 text-slate-500" />;
@@ -55,43 +58,34 @@ const App = () => {
   };
 
   return (
-    // 1. FONDO GLOBAL OSCURO (Slate 900)
     <div className="min-h-screen bg-[#0f172a] text-slate-200 p-4 sm:p-8 font-sans">
       
-      {/* Header con datos dinámicos */}
       <Header 
         totalPrompts={totalPrompts} 
         filteredCount={searchText ? filteredCount : null}
         categoryCount={categoryCount}
       />
 
-      {/* Barra de Búsqueda */}
       <SearchBar 
         searchText={searchText}
         onSearchChange={setSearchText}
         onClear={handleClearSearch}
       />
 
-      {/* 2. GRID LAYOUT DE TARJETAS */}
       <main className="max-w-7xl mx-auto mt-10">
         
-        {/* Mensaje: Sin resultados */}
         {searchText.length > 0 && displayedPrompts.length === 0 && (
           <div className="text-center p-12 bg-[#1e293b] rounded-2xl shadow-xl border border-red-900/50 max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold text-red-400">No se encontraron resultados</h2>
-            <p className="text-slate-400 mt-3">
-              Intenta con otras palabras clave o{' '}
-              <button 
+            <button 
                 onClick={handleClearSearch} 
-                className="text-blue-400 hover:text-blue-300 font-medium underline"
-              >
-                limpia la búsqueda
-              </button>.
-            </p>
+                className="text-blue-400 hover:text-blue-300 font-medium underline mt-2"
+            >
+                Limpiar búsqueda
+            </button>
           </div>
         )}
 
-        {/* CONTENEDOR DE TARJETAS */}
         {displayedPrompts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
@@ -104,16 +98,13 @@ const App = () => {
                   className="bg-[#1e293b] rounded-2xl border border-slate-700/50 hover:border-blue-500/50 transition-all duration-300 shadow-lg hover:shadow-2xl flex flex-col overflow-hidden"
                 >
                   
-                  {/* Decoración superior */}
                   <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 to-cyan-400"></div>
 
-                  {/* Header de la Tarjeta */}
                   <button
                     className="w-full text-left p-5 flex flex-col gap-3 transition duration-150 group"
                     onClick={() => toggleCollapse(category.title)}
                   >
                     <div className="flex justify-between items-start w-full">
-                        {/* Icono de Categoría */}
                         <div className="p-3 rounded-xl bg-[#0f172a] text-slate-200 border border-slate-700 shadow-inner group-hover:border-blue-500/30 transition-colors">
                             <span className="text-2xl">{category.icon || "📂"}</span> 
                         </div>
@@ -130,7 +121,6 @@ const App = () => {
                     </div>
                   </button>
                   
-                  {/* Contenido Expandible */}
                   <div 
                     className={`transition-all duration-300 ease-in-out overflow-hidden ${
                         categoryExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
@@ -139,12 +129,11 @@ const App = () => {
                     <div className="p-5 pt-0 border-t border-slate-700/50 bg-[#1e293b]">
                       
                       {category.subcategories.map(subcategory => {
-                        const subcategoryExpanded = collapsedState[subcategory.title] === true || searchText; 
-                        
+                        const subcategoryExpanded = collapsedState[subcategory.title] === true || searchText;
+
                         return (
                           <div key={subcategory.title} className="mt-4 first:mt-4">
                             
-                            {/* Título Subcategoría */}
                             <button
                               className="w-full text-left py-2 flex items-center justify-between group/sub"
                               onClick={() => toggleCollapse(subcategory.title)}
@@ -157,7 +146,6 @@ const App = () => {
                               </div>
                             </button>
                             
-                            {/* Lista de Prompts */}
                             <div 
                                 className={`pl-3 border-l-2 border-slate-700 space-y-2 mt-1 overflow-hidden transition-all duration-300 ${
                                     subcategoryExpanded ? 'max-h-[1000px] py-2' : 'max-h-0'
@@ -197,7 +185,7 @@ const App = () => {
 
       <Footer />
 
-      {/* Modal de Detalles */}
+      {/* Modal */}
       {selectedPrompt && (
         <PromptDetailModal 
           promptData={selectedPrompt} 
@@ -206,7 +194,7 @@ const App = () => {
         />
       )}
 
-      {/* Toast Notification */}
+      {/* Toast */}
       <div className={`fixed bottom-5 right-5 bg-blue-600 text-white px-5 py-3 rounded-lg shadow-2xl shadow-blue-500/20 transition-all duration-300 z-50 flex items-center gap-2 border border-blue-400 ${toastVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
           <Check className="w-5 h-5 text-white" />
           <span className="font-bold">¡Prompt copiado!</span>
