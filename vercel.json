@@ -19,6 +19,22 @@
       "dest": "/static/$1"
     },
     {
+      "src": "/og-imagen.jpg",
+      "headers": {
+        "Content-Type": "image/jpeg",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/og-imagen.jpg"
+    },
+    {
+      "src": "/robot.png",
+      "headers": {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/robot.png"
+    },
+    {
       "src": "/favicon.ico",
       "dest": "/favicon.ico"
     },
